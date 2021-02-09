@@ -37,7 +37,15 @@ def get_all_images(url):
 
         # finally, if the url is valid
         if is_valid(img_url):
-            urls.append(img_url)
+            if img_url in BLOCKED:
+                print(f"Blocked {img_url}")
+                continue
+
+            if img_url not in urls:
+                urls.append(img_url)
+            else:
+                print(f"Double {img_url}")
+
     return urls
 
 def download(url, pathname):
@@ -63,10 +71,22 @@ def download(url, pathname):
             progress.update(len(data))
 
 
-def scrape(url, path):
+def scrape(urls, path):
     # get all images
-    imgs = get_all_images(url)
-    print(imgs)
+    imgs = []
+
+    for url in urls:
+        u_imgs = get_all_images(url)
+        imgs.extend(u_imgs)
+
+    l = len(imgs)
+    imgs = list(set(imgs))
+    print(f"Removed page doubles {l - len(imgs)}")
+
+    for img in imgs:
+        assert imgs.count(img) == 1
+
+    print(f"TOTAL {len(imgs)}")
     return
     for img in imgs:
         # for each image, download it
@@ -74,7 +94,20 @@ def scrape(url, path):
 
 
 if __name__ == "__main__":
-    URL="http://www.stjorgengk.com/"
-    PATH= r"/Users/RasmusEnglund/Desktop/Scraper/result"
-    scrape(URL, PATH)
+
+    BLOCKED = [
+        "http://www.stjorgengk.com/Images/logo.png"
+    ]
+
+    URLs = [
+        "http://www.stjorgengk.com",
+        "http://www.stjorgengk.com/banan"
+    ]
+
+    PATH = r"/Users/RasmusEnglund/Desktop/Scraper/result"
+
+    scrape(URLs, PATH)
+
+
+
 
