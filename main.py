@@ -74,6 +74,11 @@ def scrape(url, path):
 
 
 if __name__ == "__main__":
-    URL=""
+    URL="http://www.stjorgengk.com/"
     PATH= r"/Users/RasmusEnglund/Desktop/Scraper/result"
     scrape(URL, PATH)
+
+
+https://www.thepythoncode.com/article/extract-all-website-links-python
+https://www.thepythoncode.com/article/using-threads-in-python
+https://www.jetbrains.com/help/pycharm/pipenv.html
