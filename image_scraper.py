@@ -71,7 +71,7 @@ def download(url, pathname):
             progress.update(len(data))
 
 
-def scrape(urls, path):
+def scrape(urls, path, blocked):
     # get all images
     imgs = []
 
@@ -83,6 +83,10 @@ def scrape(urls, path):
     imgs = list(set(imgs))
     print(f"Removed page doubles {l - len(imgs)}")
 
+    for i in imgs:
+        if i in blocked:
+            imgs.remove(i)
+
     for img in imgs:
         assert imgs.count(img) == 1
 
@@ -92,21 +96,6 @@ def scrape(urls, path):
         # for each image, download it
         download(img, path)
 
-
-if __name__ == "__main__":
-
-    BLOCKED = [
-        "http://www.stjorgengk.com/Images/logo.png"
-    ]
-
-    URLs = [
-        "http://www.stjorgengk.com",
-        "http://www.stjorgengk.com/banan"
-    ]
-
-    PATH = r"/Users/RasmusEnglund/Desktop/Scraper/result"
-
-    scrape(URLs, PATH)
 
 
 
