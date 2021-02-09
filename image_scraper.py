@@ -1,5 +1,6 @@
 import requests
 import os
+import cssutils
 from tqdm import tqdm
 from bs4 import BeautifulSoup as bs
 from urllib.parse import urljoin, urlparse
@@ -37,10 +38,6 @@ def get_all_images(url):
 
         # finally, if the url is valid
         if is_valid(img_url):
-            if img_url in BLOCKED:
-                print(f"Blocked {img_url}")
-                continue
-
             if img_url not in urls:
                 urls.append(img_url)
             else:
@@ -83,15 +80,18 @@ def scrape(urls, path, blocked):
     imgs = list(set(imgs))
     print(f"Removed page doubles {l - len(imgs)}")
 
+    print(f"Before removal {len(imgs)}")
     for i in imgs:
         if i in blocked:
+            print(f"Blocked {i}")
             imgs.remove(i)
+    print(f"After removal {len(imgs)}")
 
     for img in imgs:
         assert imgs.count(img) == 1
 
     print(f"TOTAL {len(imgs)}")
-    return
+
     for img in imgs:
         # for each image, download it
         download(img, path)

@@ -12,5 +12,6 @@ if __name__ == "__main__":
     bURL = "http://www.stjorgengk.com"
 
     links, _ = get_links(bURL)
+    scrape(links, PATH, BLOCKED_IMAGES)
 
-    print(len(links))
+
