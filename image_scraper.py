@@ -13,19 +13,17 @@ def is_valid(url):
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
+
 def get_all_images(url):
     """
     Returns all image URLs on a single `url`
     """
     soup = bs(requests.get(url).content, "html.parser")
     urls = []
-    for img in tqdm(soup.find_all("img"), "Extracting images"):
-        img_url = img.attrs.get("src")
-        if not img_url:
-            # if img does not contain src attribute, just skip
-            continue
+
+    def add_url(u):
         # make the URL absolute by joining domain with the URL that is just extracted
-        img_url = urljoin(url, img_url)
+        img_url = urljoin(url, u)
 
         # There are some URLs that contains HTTP GET key value pairs which we don't
         # like (that ends with something like this "/image.png?c=3.2.5"),
@@ -42,6 +40,43 @@ def get_all_images(url):
                 urls.append(img_url)
             else:
                 print(f"Double {img_url}")
+
+    for img in tqdm(soup.find_all("img"), "Extracting images"):
+        img_url = img.attrs.get("src")
+        if not img_url:
+            # if img does not contain src attribute, just skip
+            continue
+        add_url(img_url)
+
+    for div in tqdm(soup.find_all("div"), "Extracting <div> background images"):
+        div_style = div.get("style", None)
+        if div_style is not None:
+            style = cssutils.parseStyle(div['style'])
+
+            img_url = style['background-image']
+            if img_url != "":
+                img_url.replace('url(', '').replace(')', '')
+                add_url(img_url)
+
+            img_bg = style['background']
+            if img_bg != "":
+                img_bg.replace('url(', '').replace(')', '')
+                add_url(img_bg)
+
+    for a in tqdm(soup.find_all("a"), "Extracting <a> background images"):
+        a_style = a.get("style", None)
+        if a_style is not None:
+            style = cssutils.parseStyle(a['style'])
+
+            img_url = style['background-image']
+            if img_url != "":
+                img_url.replace('url(', '').replace(')', '')
+                add_url(img_url)
+
+            img_bg = style['background']
+            if img_bg != "":
+                img_bg.replace('url(', '').replace(')', '')
+                add_url(img_bg)
 
     return urls
 

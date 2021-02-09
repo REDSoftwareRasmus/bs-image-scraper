@@ -8,10 +8,11 @@ if __name__ == "__main__":
         "http://www.stjorgengk.com/Images/logo.png"
     ]
 
-    PATH = r"/Users/RasmusEnglund/Desktop/Scraper/result"
+    PATH = r"/Users/RasmusEnglund/Desktop/Scraper/result2"
     bURL = "http://www.stjorgengk.com"
 
     links, _ = get_links(bURL)
+
     scrape(links, PATH, BLOCKED_IMAGES)
 
 
