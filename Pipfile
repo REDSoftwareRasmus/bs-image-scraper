@@ -6,8 +6,9 @@ name = "pypi"
 [packages]
 requests = "*"
 tqdm = "*"
-bs4 = "*"
 cssutils = "*"
+lxml = "*"
+beautifulsoup4 = "*"
 
 [dev-packages]
 

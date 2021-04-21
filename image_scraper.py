@@ -11,7 +11,11 @@ def is_valid(url):
     Checks whether `url` is a valid URL.
     """
     parsed = urlparse(url)
-    return bool(parsed.netloc) and bool(parsed.scheme)
+    valid_parse = bool(parsed.netloc) and bool(parsed.scheme)
+
+    valid_extensions = ["jpg", "png", "gif", "jpeg"]
+    contains = [(ext in url or ext.upper() in url) for ext in valid_extensions]
+    return valid_parse and any(contains)
 
 
 def get_all_images(url):
@@ -87,14 +91,23 @@ def download(url, pathname):
     # if path doesn't exist, make that path dir
     if not os.path.isdir(pathname):
         os.makedirs(pathname)
+
+    files = [os.path.join(pathname, f) for f in os.listdir(pathname)]
     # download the body of response by chunk, not immediately
     response = requests.get(url, stream=True)
     # get the total file size
     file_size = int(response.headers.get("Content-Length", 0))
     # get the file name
+    idx = 1
     filename = os.path.join(pathname, url.split("/")[-1])
+    while filename in files:
+        filename = os.path.join(pathname, str(idx) + " - " + url.split("/")[-1])
+        idx += 1
+        print("got duplicate name")
+
     # progress bar, changing the unit to bytes instead of iteration (default by tqdm)
     progress = tqdm(response.iter_content(1024), f"Downloading {filename}", total=file_size, unit="B", unit_scale=True, unit_divisor=1024)
+    print(filename)
     with open(filename, "wb") as f:
         for data in progress:
             # write data read to the file
@@ -126,7 +139,7 @@ def scrape(urls, path, blocked):
         assert imgs.count(img) == 1
 
     print(f"TOTAL {len(imgs)}")
-
+    print(imgs)
     for img in imgs:
         # for each image, download it
         download(img, path)

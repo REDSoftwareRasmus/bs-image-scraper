@@ -1,10 +1,11 @@
 import requests
 from urllib.parse import urlparse, urljoin
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, SoupStrainer
 
 # initialize the set of links (unique links)
 internal_urls = set()
 external_urls = set()
+visited_urls = set()
 
 def is_valid(url):
     """
@@ -17,11 +18,12 @@ def get_all_website_links(url):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
     """
+
     # all URLs of `url`
     urls = set()
     # domain name of the URL without the protocol
     domain_name = urlparse(url).netloc
-    soup = BeautifulSoup(requests.get(url).content, "html.parser")
+    soup = BeautifulSoup(requests.get(url).content, "lxml")
 
     for a_tag in soup.findAll("a"):
         href = a_tag.attrs.get("href")
@@ -31,11 +33,9 @@ def get_all_website_links(url):
 
         # join the URL if it's relative (not absolute link)
         href = urljoin(url, href)
-
         parsed_href = urlparse(href)
         # remove URL GET parameters, URL fragments, etc.
         href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
-
         if not is_valid(href):
             # not a valid URL
             continue
@@ -56,7 +56,7 @@ def get_all_website_links(url):
 # number of urls visited so far will be stored here
 total_urls_visited = 0
 
-def crawl(url, max_urls=100):
+def crawl(url, max_urls=1000):
     """
     Crawls a web page and extracts all links.
     You'll find all links in `external_urls` and `internal_urls` global set variables.
