@@ -4,9 +4,6 @@ from image_scraper import scrape
 
 if __name__ == "__main__":
 
-    BLOCKED_IMAGES = [
-    ]
-
     BLOCKED_URLS = [
         "http://dk.tribotec.se/",
         "https://en.tribotec.se/"
@@ -19,9 +16,9 @@ if __name__ == "__main__":
     PATH = r"/Users/RasmusEnglund/Desktop/Scraper/result2"
     bURL = "https://tribotec.se/"
 
-    links = get_links(bURL, BLOCKED_URLS, BLOCKED_URL_PATHS, PATH)
-    #links = load_urls_from_backup(PATH)
-    print(links)
-    #scrape(links, PATH, BLOCKED_IMAGES)
+    #links = get_links(bURL, BLOCKED_URLS, BLOCKED_URL_PATHS, PATH)
+    links = load_urls_from_backup(PATH)
+    print(len(list(links)))
+    scrape(links, PATH)
 
 

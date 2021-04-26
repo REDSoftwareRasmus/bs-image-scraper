@@ -23,16 +23,22 @@ def get_all_images(url):
     Returns all image URLs on a single `url`
     """
     try:
-        soup = bs(requests.get(url).content, "html.parser")
+        soup = bs(requests.get(url).content, "lxml")
     except requests.exceptions.ConnectionError:
         print(f"Could not connect to {url}")
+        return []
+    except Exception as e:
+        print(f"Could request soup in {url}")
         return []
 
     urls = []
 
     def add_url(u):
         # make the URL absolute by joining domain with the URL that is just extracted
-        img_url = urljoin(url, u)
+        if "https" not in u and "http" not in u:
+            img_url = urljoin(url, u)
+        else:
+            img_url = u
 
         # There are some URLs that contains HTTP GET key value pairs which we don't
         # like (that ends with something like this "/image.png?c=3.2.5"),
@@ -99,7 +105,12 @@ def download(url, pathname):
 
     files = [os.path.join(pathname, f) for f in os.listdir(pathname)]
     # download the body of response by chunk, not immediately
-    response = requests.get(url, stream=True)
+    try:
+        response = requests.get(url, stream=True)
+    except Exception as e:
+        print(f"Could not download image at {url}. Error: {e}")
+        return
+
     # get the total file size
     file_size = int(response.headers.get("Content-Length", 0))
     # get the file name
@@ -121,7 +132,7 @@ def download(url, pathname):
             progress.update(len(data))
 
 
-def scrape(urls, path, blocked):
+def scrape(urls, path):
     # get all images
     imgs = []
 
@@ -132,13 +143,6 @@ def scrape(urls, path, blocked):
     l = len(imgs)
     imgs = list(set(imgs))
     print(f"Removed page doubles {l - len(imgs)}")
-
-    print(f"Before removal {len(imgs)}")
-    for i in imgs:
-        if i in blocked:
-            print(f"Blocked {i}")
-            imgs.remove(i)
-    print(f"After removal {len(imgs)}")
 
     for img in imgs:
         assert imgs.count(img) == 1

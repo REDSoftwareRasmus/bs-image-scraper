@@ -5,7 +5,7 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
 # vars
-MAX_URLS = 30
+MAX_URLS = 1000
 REPORT_THRESHOLD = 100
 backup_filename = "links.pkl"
 
