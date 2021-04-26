@@ -20,10 +20,12 @@ def is_valid(url):
     parsed = urlparse(url)
     valid_parse = bool(parsed.netloc) and bool(parsed.scheme)
 
-    valid_extensions = ["jpg", "png", "gif", "jpeg", "svg"]
+    valid_extensions = ["jpg", "png", "gif", "jpeg"]
     contains = [(ext in url or ext.upper() in url) for ext in valid_extensions]
     return valid_parse and any(contains)
 
+def parse_css_background(url):
+    return url.replace('url(', '').replace(')', '')
 
 def get_all_images(url):
     """
@@ -67,14 +69,14 @@ def get_all_images(url):
             print("not valid ", img_url)
 
 
-    for img in tqdm(soup.find_all("img"), "Extracting images"):
+    for img in soup.find_all("img"):
         img_url = img.attrs.get("src")
         if not img_url:
             # if img does not contain src attribute, just skip
             continue
         add_url(img_url)
 
-    for div in tqdm(soup.find_all("div"), "Extracting <div> background images"):
+    for div in soup.find_all("div"):
         div_style = div.get("style", None)
 
         if div_style is not None:
@@ -82,28 +84,27 @@ def get_all_images(url):
 
             img_url = style['background-image']
             if img_url != "":
-                _url = img_url.replace('url(', '').replace(')', '')
+                _url = parse_css_background(img_url)
                 add_url(_url)
 
             img_bg = style['background']
-
             if img_bg != "":
-                _url = img_bg.replace('url(', '').replace(')', '')
+                _url = parse_css_background(img_bg)
                 add_url(_url)
 
-    for a in tqdm(soup.find_all("a"), "Extracting <a> background images"):
+    for a in soup.find_all("a"):
         a_style = a.get("style", None)
         if a_style is not None:
             style = cssutils.parseStyle(a['style'])
 
             img_url = style['background-image']
             if img_url != "":
-                _url = img_url.replace('url(', '').replace(')', '')
+                _url = parse_css_background(img_url)
                 add_url(_url)
 
             img_bg = style['background']
             if img_bg != "":
-                _url = img_bg.replace('url(', '').replace(')', '')
+                _url = parse_css_background(img_bg)
                 add_url(_url)
 
     return urls
@@ -150,7 +151,7 @@ def scrape(urls, result_path):
     # Get all images
     imgs = []
 
-    for url in urls:
+    for url in tqdm(urls, "Finding image urls..."):
         u_imgs = get_all_images(url)
         imgs.extend(u_imgs)
 
@@ -172,7 +173,7 @@ def scrape(urls, result_path):
     # Download
     print(f"TOTAL {len(imgs)}")
     print(imgs)
-    for img in imgs:
+    for img in tqdm(imgs, "Downloading images..."):
         # for each image, download it
         download(img, result_path)
 
