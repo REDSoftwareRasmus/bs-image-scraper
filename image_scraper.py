@@ -63,11 +63,6 @@ def get_all_images(url):
         if is_valid(img_url):
             if img_url not in urls:
                 urls.append(img_url)
-            else:
-                print(f"Double {img_url}")
-        else:
-            print("not valid ", img_url)
-
 
     for img in soup.find_all("img"):
         img_url = img.attrs.get("src")
