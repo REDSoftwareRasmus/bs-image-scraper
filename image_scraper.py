@@ -22,7 +22,12 @@ def get_all_images(url):
     """
     Returns all image URLs on a single `url`
     """
-    soup = bs(requests.get(url).content, "html.parser")
+    try:
+        soup = bs(requests.get(url).content, "html.parser")
+    except requests.exceptions.ConnectionError:
+        print(f"Could not connect to {url}")
+        return []
+
     urls = []
 
     def add_url(u):
@@ -107,7 +112,7 @@ def download(url, pathname):
 
     # progress bar, changing the unit to bytes instead of iteration (default by tqdm)
     progress = tqdm(response.iter_content(1024), f"Downloading {filename}", total=file_size, unit="B", unit_scale=True, unit_divisor=1024)
-    print(filename)
+
     with open(filename, "wb") as f:
         for data in progress:
             # write data read to the file
