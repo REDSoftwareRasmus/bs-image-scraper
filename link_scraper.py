@@ -5,9 +5,10 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
 # vars
+
 MAX_URLS = 1000
 REPORT_THRESHOLD = 100
-backup_filename = "links.pkl"
+backup_filename = "urls.pkl"
 
 # initialize the set of links (unique links)
 blocked_urls = set()

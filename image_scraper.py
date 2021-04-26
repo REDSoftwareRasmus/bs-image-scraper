@@ -1,10 +1,17 @@
 import requests
 import os
 import cssutils
+import pickle
 from tqdm import tqdm
 from bs4 import BeautifulSoup as bs
 from urllib.parse import urljoin, urlparse
 
+
+# vars
+backup_filename = "image-urls.pkl"
+
+
+# methods
 
 def is_valid(url):
     """
@@ -132,8 +139,9 @@ def download(url, pathname):
             progress.update(len(data))
 
 
-def scrape(urls, path):
-    # get all images
+def scrape(urls, result_path):
+
+    # Get all images
     imgs = []
 
     for url in urls:
@@ -147,13 +155,24 @@ def scrape(urls, path):
     for img in imgs:
         assert imgs.count(img) == 1
 
+    # Save backup
+    if not os.path.exists(result_path):
+        os.mkdir(result_path)
+    backup_path = os.path.join(result_path, backup_filename)
+    with open(backup_path, "wb") as f:
+        pickle.dump(imgs, f)
+        print(f"Saved image URLs to {backup_path}")
+
+    # Download
     print(f"TOTAL {len(imgs)}")
     print(imgs)
     for img in imgs:
         # for each image, download it
-        download(img, path)
+        download(img, result_path)
 
-
-
-
+def load_image_urls_from_backup(path):
+    backup_path = os.path.join(path, backup_filename)
+    with open(backup_path, "rb") as f:
+        backup_urls = pickle.load(f)
+        return backup_urls
 
